@@ -1,1342 +1,532 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Black Hole · Portfolio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
-    <style>
-        /* ============================================================
-           RESET & BASE
-           ============================================================ */
-        *,
-        *::before,
-        *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your Name — Portfolio</title>
 
-        :root {
-            --bg-deep: #050508;
-            --bg-surface: #0c0c18;
-            --bg-card: #111122;
-            --text-primary: #f0edff;
-            --text-dim: #8a88b0;
-            --accent-purple: #8b5cf6;
-            --accent-blue: #4f8cf7;
-            --accent-pink: #ec4899;
-            --accent-glow: rgba(139, 92, 246, 0.25);
-            --radius: 20px;
-            --shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
-            --transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-        }
+<style>
+  /* ============================================
+     🎨 EDIT THESE COLORS TO CHANGE THE THEME
+     ============================================ */
+  :root {
+    --bg-dark: #0a0a1a;          /* Background base color */
+    --particle-color: #6ee7ff;    /* Floating dots color */
+    --line-color: #6ee7ff;        /* Lines between dots */
+    --accent: #7c3aed;            /* Accent / highlight color */
+    --accent-2: #06b6d4;          /* Secondary accent */
+    --text-main: #f1f5f9;         /* Main text color */
+    --text-muted: #94a3b8;        /* Muted text */
+    --card-bg: rgba(15, 23, 42, 0.55); /* Glass card background */
+    --card-border: rgba(148, 163, 184, 0.15);
+  }
 
-        html {
-            scroll-behavior: smooth;
-            scrollbar-width: thin;
-            scrollbar-color: var(--accent-purple) transparent;
-        }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent-purple);
-            border-radius: 10px;
-        }
+  html, body {
+    height: 100%;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-main);
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-deep);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
+  /* ============================================
+     🌌 MOTION BACKGROUND (Canvas)
+     ============================================ */
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: block;
+  }
 
-        a {
-            color: var(--accent-purple);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        a:hover {
-            color: #a78bfa;
-        }
+  /* Animated gradient overlay for extra motion feel */
+  .gradient-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(124, 58, 237, 0.18), transparent 45%),
+      radial-gradient(circle at 80% 70%, rgba(6, 182, 212, 0.18), transparent 45%);
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  @keyframes drift {
+    0%   { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-3%, 3%) scale(1.05); }
+  }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
+  /* ============================================
+     📄 CONTENT LAYER (scrolls over background)
+     ============================================ */
+  .content {
+    position: relative;
+    z-index: 2;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
 
-        /* ============================================================
-           BLACK HOLE CANVAS (fullscreen background)
-           ============================================================ */
-        #blackhole-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0;
-            pointer-events: none;
-            /* allows clicks to pass through */;
-        }
+  /* ---------- HERO ---------- */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 80px 0;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--text-main), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0;
+    animation: fadeUp 0.9s ease forwards 0.2s;
+  }
+  .hero .tagline {
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    color: var(--text-muted);
+    max-width: 640px;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.9s ease forwards 0.5s;
+  }
+  .hero .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    opacity: 0;
+    animation: fadeUp 0.9s ease forwards 0.8s;
+  }
 
-        /* ============================================================
-           STARFIELD (CSS fallback / extra depth)
-           ============================================================ */
-        .stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-            background:
-                radial-gradient(2px 2px at 20% 30%, #fff, transparent),
-                radial-gradient(2px 2px at 40% 70%, #fff, transparent),
-                radial-gradient(1px 1px at 70% 20%, #fff, transparent),
-                radial-gradient(1px 1px at 90% 80%, #fff, transparent),
-                radial-gradient(1.5px 1.5px at 10% 90%, #fff, transparent),
-                radial-gradient(1px 1px at 50% 10%, #fff, transparent),
-                radial-gradient(1.5px 1.5px at 80% 50%, #fff, transparent),
-                radial-gradient(1px 1px at 30% 50%, #fff, transparent),
-                radial-gradient(1px 1px at 60% 40%, #fff, transparent),
-                radial-gradient(1px 1px at 5% 60%, #fff, transparent);
-            background-size: 200px 200px;
-            opacity: 0.4;
-        }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
-        /* ============================================================
-           GLOW ORBS
-           ============================================================ */
-        .glow-orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(100px);
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.3;
-            animation: floatOrb 25s ease-in-out infinite alternate;
-        }
-        .glow-orb--1 {
-            width: 500px;
-            height: 500px;
-            top: -10%;
-            right: -10%;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.25), transparent 70%);
-            animation-delay: -4s;
-        }
-        .glow-orb--2 {
-            width: 400px;
-            height: 400px;
-            bottom: -10%;
-            left: -5%;
-            background: radial-gradient(circle, rgba(79, 140, 247, 0.2), transparent 70%);
-            animation-delay: -12s;
-        }
-        .glow-orb--3 {
-            width: 300px;
-            height: 300px;
-            top: 40%;
-            left: 50%;
-            background: radial-gradient(circle, rgba(236, 72, 153, 0.12), transparent 70%);
-            animation-delay: -20s;
-            animation-duration: 30s;
-        }
+  /* ---------- BUTTONS ---------- */
+  .btn {
+    display: inline-block;
+    padding: 12px 26px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35);
+  }
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(124, 58, 237, 0.55);
+  }
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--card-border);
+    color: var(--text-main);
+  }
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-3px);
+  }
 
-        @keyframes floatOrb {
-            0% {
-                transform: translate(0, 0) scale(1);
-            }
-            100% {
-                transform: translate(80px, -50px) scale(1.3);
-            }
-        }
+  /* ---------- SECTIONS ---------- */
+  section {
+    padding: 100px 0;
+  }
+  .section-title {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    margin-bottom: 40px;
+    position: relative;
+    display: inline-block;
+  }
+  .section-title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -10px;
+    width: 60px;
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  }
 
-        /* ============================================================
-           OVERLAY CONTENT (z-index above canvas)
-           ============================================================ */
-        .content {
-            position: relative;
-            z-index: 2;
-        }
+  /* ---------- GLASS CARDS ---------- */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 28px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  .card.in-view {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.7s ease, transform 0.7s ease,
+                border-color 0.35s ease, box-shadow 0.35s ease;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    border-color: var(--accent);
+    box-shadow: 0 20px 40px rgba(124, 58, 237, 0.2);
+  }
+  .card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: var(--text-main);
+  }
+  .card p {
+    color: var(--text-muted);
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+  .card .tags {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tag {
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(124, 58, 237, 0.15);
+    color: var(--accent-2);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+  }
+  .card a {
+    display: inline-block;
+    margin-top: 16px;
+    color: var(--accent-2);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .card a:hover { text-decoration: underline; }
 
-        /* ============================================================
-           NAVBAR
-           ============================================================ */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            padding: 16px 0;
-            background: rgba(5, 5, 8, 0.55);
-            backdrop-filter: blur(18px) saturate(1.3);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            transition: background 0.4s, box-shadow 0.4s;
-        }
-        .navbar.scrolled {
-            background: rgba(5, 5, 8, 0.82);
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
-        }
+  /* ---------- ABOUT ---------- */
+  .about-text {
+    max-width: 720px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    font-size: 1.05rem;
+  }
 
-        .nav-inner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+  /* ---------- PROJECTS GRID ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
 
-        .logo {
-            font-size: 1.4rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink), var(--accent-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            background-size: 200% 200%;
-            animation: gradientShift 8s ease infinite;
-        }
-        @keyframes gradientShift {
-            0%,
-            100% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-        }
+  /* ---------- CONTACT ---------- */
+  .contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 24px;
+  }
 
-        .nav-links {
-            display: flex;
-            gap: 32px;
-            list-style: none;
-        }
-        .nav-links a {
-            color: var(--text-dim);
-            font-size: 0.85rem;
-            font-weight: 500;
-            letter-spacing: 0.4px;
-            transition: color 0.3s, transform 0.3s;
-            position: relative;
-        }
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 1.5px;
-            background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink));
-            transition: width 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        .nav-links a:hover {
-            color: #fff;
-        }
-        .nav-links a:hover::after {
-            width: 100%;
-        }
+  /* ---------- FOOTER ---------- */
+  footer {
+    text-align: center;
+    padding: 40px 24px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--card-border);
+    margin-top: 60px;
+  }
 
-        .nav-toggle {
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 4px;
-            z-index: 1001;
-        }
-        .nav-toggle span {
-            display: block;
-            width: 26px;
-            height: 2px;
-            background: var(--text-primary);
-            border-radius: 4px;
-            transition: 0.3s;
-        }
+  /* ---------- TOP NAV (optional) ---------- */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 32px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(10, 10, 26, 0.4);
+    border-bottom: 1px solid var(--card-border);
+    font-size: 0.9rem;
+  }
+  .nav .logo {
+    font-weight: 700;
+    color: var(--text-main);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+  }
+  .nav ul {
+    list-style: none;
+    display: flex;
+    gap: 24px;
+  }
+  .nav ul a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.25s;
+  }
+  .nav ul a:hover { color: var(--accent-2); }
 
-        /* ============================================================
-           HERO
-           ============================================================ */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: 120px 0 80px;
-            position: relative;
-        }
-
-        .hero-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 50px;
-            align-items: center;
-        }
-
-        .hero-content {
-            animation: fadeUp 1s ease both;
-        }
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 20px;
-            border-radius: 100px;
-            background: rgba(139, 92, 246, 0.12);
-            color: var(--accent-purple);
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            border: 1px solid rgba(139, 92, 246, 0.15);
-            margin-bottom: 20px;
-            backdrop-filter: blur(4px);
-        }
-        .hero-badge .pulse {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent-purple);
-            animation: pulseDot 2s ease-in-out infinite;
-        }
-        @keyframes pulseDot {
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.4;
-                transform: scale(0.6);
-            }
-        }
-
-        .hero h1 {
-            font-size: clamp(2.6rem, 6vw, 4.8rem);
-            font-weight: 800;
-            line-height: 1.05;
-            letter-spacing: -0.03em;
-            margin-bottom: 16px;
-        }
-        .hero h1 .highlight {
-            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink), var(--accent-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            background-size: 200% 200%;
-            animation: gradientShift 8s ease infinite;
-        }
-
-        .hero p {
-            font-size: 1.15rem;
-            color: var(--text-dim);
-            max-width: 480px;
-            margin-bottom: 32px;
-        }
-
-        .hero-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 14px 32px;
-            border-radius: 60px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            border: none;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
-            color: #fff;
-            border-color: transparent;
-            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
-        }
-        .btn-primary:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 16px 56px rgba(139, 92, 246, 0.5);
-        }
-        .btn-outline:hover {
-            transform: translateY(-3px);
-            border-color: var(--accent-purple);
-            background: rgba(139, 92, 246, 0.08);
-            color: #fff;
-        }
-
-        /* ============================================================
-           SECTIONS
-           ============================================================ */
-        section {
-            position: relative;
-            z-index: 1;
-            padding: 90px 0;
-        }
-
-        .section-label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 2.5px;
-            color: var(--accent-purple);
-            margin-bottom: 6px;
-        }
-
-        .section-title {
-            font-size: clamp(1.8rem, 3.5vw, 2.8rem);
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 12px;
-        }
-
-        .section-desc {
-            color: var(--text-dim);
-            max-width: 540px;
-            font-size: 1.05rem;
-        }
-
-        /* ============================================================
-           SKILLS
-           ============================================================ */
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            margin-top: 44px;
-        }
-
-        .skill-card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 28px 16px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-            cursor: default;
-            position: relative;
-            overflow: hidden;
-        }
-        .skill-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: var(--radius);
-            background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(139, 92, 246, 0.12), transparent 60%);
-            opacity: 0;
-            transition: opacity 0.5s;
-            pointer-events: none;
-        }
-        .skill-card:hover::before {
-            opacity: 1;
-        }
-        .skill-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(139, 92, 246, 0.25);
-            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.4);
-        }
-        .skill-card .icon {
-            font-size: 2.6rem;
-            margin-bottom: 10px;
-            display: block;
-        }
-        .skill-card h4 {
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        /* ============================================================
-           PROJECTS
-           ============================================================ */
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 28px;
-            margin-top: 44px;
-        }
-
-        .project-card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        .project-card:hover {
-            transform: translateY(-10px) scale(1.01);
-            border-color: rgba(139, 92, 246, 0.25);
-            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
-        }
-
-        .project-thumb {
-            height: 190px;
-            background: var(--bg-deep);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3.2rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .project-thumb .glow-overlay {
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 30% 40%, rgba(139, 92, 246, 0.15), transparent 70%);
-            opacity: 0;
-            transition: opacity 0.6s;
-        }
-        .project-card:hover .glow-overlay {
-            opacity: 1;
-        }
-
-        .project-body {
-            padding: 24px 24px 28px;
-        }
-        .project-body h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-        .project-body p {
-            color: var(--text-dim);
-            font-size: 0.9rem;
-            margin-bottom: 14px;
-        }
-        .project-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        .project-tags span {
-            padding: 3px 14px;
-            border-radius: 100px;
-            background: rgba(139, 92, 246, 0.08);
-            font-size: 0.65rem;
-            font-weight: 500;
-            color: var(--accent-purple);
-            border: 1px solid rgba(139, 92, 246, 0.08);
-        }
-
-        /* ============================================================
-           QUOTE
-           ============================================================ */
-        .quote-block {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 48px 40px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            margin-top: 32px;
-            position: relative;
-            overflow: hidden;
-        }
-        .quote-block::before {
-            content: '"';
-            position: absolute;
-            top: -30px;
-            left: 16px;
-            font-size: 10rem;
-            color: rgba(139, 92, 246, 0.06);
-            font-weight: 900;
-            line-height: 1;
-        }
-        .quote-block blockquote {
-            font-size: 1.4rem;
-            font-weight: 400;
-            font-style: italic;
-            color: var(--text-primary);
-            max-width: 700px;
-            position: relative;
-            z-index: 1;
-        }
-        .quote-block cite {
-            display: block;
-            margin-top: 12px;
-            color: var(--text-dim);
-            font-style: normal;
-            font-weight: 500;
-        }
-
-        /* ============================================================
-           CONTACT
-           ============================================================ */
-        .contact-wrap {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 50px;
-            margin-top: 36px;
-        }
-
-        .contact-info h3 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .contact-info p {
-            color: var(--text-dim);
-            margin-bottom: 20px;
-        }
-
-        .contact-social {
-            display: flex;
-            gap: 14px;
-        }
-        .contact-social a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            background: var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            font-size: 1.2rem;
-            transition: all 0.3s;
-            color: var(--text-dim);
-        }
-        .contact-social a:hover {
-            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
-            color: #fff;
-            border-color: transparent;
-            transform: translateY(-4px) scale(1.05);
-            box-shadow: 0 12px 36px rgba(139, 92, 246, 0.35);
-        }
-
-        .contact-form {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-        .contact-form input,
-        .contact-form textarea {
-            padding: 14px 18px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            background: var(--bg-card);
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 0.9rem;
-            transition: border 0.3s, box-shadow 0.3s;
-            outline: none;
-        }
-        .contact-form input:focus,
-        .contact-form textarea:focus {
-            border-color: var(--accent-purple);
-            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
-        }
-        .contact-form textarea {
-            min-height: 110px;
-            resize: vertical;
-        }
-        .contact-form .btn {
-            align-self: flex-start;
-        }
-
-        /* ============================================================
-           FOOTER
-           ============================================================ */
-        footer {
-            position: relative;
-            z-index: 1;
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
-            padding: 36px 0;
-            text-align: center;
-            color: var(--text-dim);
-            font-size: 0.85rem;
-        }
-        footer a {
-            color: var(--text-dim);
-        }
-        footer a:hover {
-            color: #fff;
-        }
-
-        /* ============================================================
-           SCROLL REVEAL
-           ============================================================ */
-        .reveal {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: opacity 0.9s cubic-bezier(0.23, 1, 0.32, 1),
-                transform 0.9s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        .reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .reveal-delay-1 {
-            transition-delay: 0.08s;
-        }
-        .reveal-delay-2 {
-            transition-delay: 0.16s;
-        }
-        .reveal-delay-3 {
-            transition-delay: 0.24s;
-        }
-        .reveal-delay-4 {
-            transition-delay: 0.32s;
-        }
-
-        @keyframes fadeUp {
-            0% {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* ============================================================
-           RESPONSIVE
-           ============================================================ */
-        @media (max-width: 968px) {
-            .hero-grid {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-            .hero p {
-                margin-left: auto;
-                margin-right: auto;
-            }
-            .hero-actions {
-                justify-content: center;
-            }
-            .contact-wrap {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100vh;
-                background: rgba(5, 5, 8, 0.96);
-                backdrop-filter: blur(24px);
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 36px;
-                transform: translateX(100%);
-                transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-            }
-            .nav-links.open {
-                transform: translateX(0);
-            }
-            .nav-links a {
-                font-size: 1.3rem;
-            }
-            .nav-toggle {
-                display: flex;
-            }
-            .nav-toggle.open span:nth-child(1) {
-                transform: rotate(45deg) translate(5px, 5px);
-            }
-            .nav-toggle.open span:nth-child(2) {
-                opacity: 0;
-            }
-            .nav-toggle.open span:nth-child(3) {
-                transform: rotate(-45deg) translate(5px, -5px);
-            }
-
-            .quote-block {
-                padding: 32px 20px;
-            }
-            .quote-block blockquote {
-                font-size: 1.1rem;
-            }
-
-            .projects-grid {
-                grid-template-columns: 1fr;
-            }
-            .skills-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 14px;
-            }
-            .skill-card {
-                padding: 20px 12px;
-            }
-            .skill-card .icon {
-                font-size: 2rem;
-            }
-            section {
-                padding: 60px 0;
-            }
-            .hero {
-                padding: 100px 0 50px;
-            }
-            .hero h1 {
-                font-size: 2.2rem;
-            }
-            .container {
-                padding: 0 16px;
-            }
-            .contact-form .btn {
-                align-self: stretch;
-                justify-content: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .skills-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-    </style>
+  @media (max-width: 640px) {
+    .nav ul { gap: 14px; font-size: 0.8rem; }
+    .nav { padding: 14px 18px; }
+    section { padding: 70px 0; }
+  }
+</style>
 </head>
+
 <body>
 
-    <!-- ============================================================
-    BLACK HOLE CANVAS
-    ============================================================ -->
-    <canvas id="blackhole-canvas"></canvas>
+<!-- 🌌 MOTION BACKGROUND -->
+<canvas id="bg-canvas"></canvas>
+<div class="gradient-overlay"></div>
 
-    <!-- ===== STARFIELD OVERLAY ===== -->
-    <div class="stars"></div>
+<!-- 🧭 NAVIGATION -->
+<nav class="nav">
+  <a href="#home" class="logo">YOUR NAME</a>
+  <ul>
+    <li><a href="#about">About</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
 
-    <!-- ===== GLOW ORBS ===== -->
-    <div class="glow-orb glow-orb--1"></div>
-    <div class="glow-orb glow-orb--2"></div>
-    <div class="glow-orb glow-orb--3"></div>
+<!-- 📄 CONTENT -->
+<main class="content">
 
-    <!-- ============================================================
-    CONTENT WRAPPER
-    ============================================================ -->
-    <div class="content">
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <h1>Hi, I'm Your Name.</h1>
+    <p class="tagline">
+      A passionate developer crafting clean, interactive experiences for the web.
+      Welcome to my corner of the internet.
+    </p>
+    <div class="cta-row">
+      <a href="#projects" class="btn btn-primary">View My Work</a>
+      <a href="#contact" class="btn btn-ghost">Get in Touch</a>
+    </div>
+  </section>
 
-        <!-- ===== NAVBAR ===== -->
-        <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
-            <div class="container nav-inner">
-                <a href="#" class="logo">✦ event horizon</a>
-                <ul class="nav-links" id="navLinks" role="menubar">
-                    <li role="none"><a href="#skills" role="menuitem">Skills</a></li>
-                    <li role="none"><a href="#projects" role="menuitem">Projects</a></li>
-                    <li role="none"><a href="#contact" role="menuitem">Contact</a></li>
-                </ul>
-                <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
-                    <span></span><span></span><span></span>
-                </button>
-            </div>
-        </nav>
+  <!-- ABOUT -->
+  <section id="about">
+    <h2 class="section-title">About Me</h2>
+    <p class="about-text">
+      I'm a software developer based in Your City, focused on building modern,
+      performant web applications. I love turning complex problems into simple,
+      beautiful interfaces. When I'm not coding, you'll find me exploring design,
+      writing, or sipping coffee.
+    </p>
+  </section>
 
-        <!-- ===== HERO ===== -->
-        <section class="hero" id="home">
-            <div class="container hero-grid">
-                <div class="hero-content">
-                    <div class="hero-badge">
-                        <span class="pulse"></span> gravitational motion
-                    </div>
-                    <h1>
-                        Beyond the<br />
-                        <span class="highlight">event horizon</span>
-                    </h1>
-                    <p>
-                        I craft digital experiences that orbit between
-                        creativity and code — immersive, fluid, and
-                        infinitely expanding.
-                    </p>
-                    <div class="hero-actions">
-                        <a href="#projects" class="btn btn-primary">Explore work</a>
-                        <a href="#contact" class="btn btn-outline">Reach out</a>
-                    </div>
-                </div>
-                <div class="hero-visual" style="display: none;">
-                    <!-- black hole is the visual -->
-                </div>
-            </div>
-        </section>
+  <!-- PROJECTS -->
+  <section id="projects">
+    <h2 class="section-title">Projects</h2>
+    <div class="grid">
 
-        <!-- ===== SKILLS ===== -->
-        <section id="skills">
-            <div class="container">
-                <div class="reveal">
-                    <span class="section-label">singularity</span>
-                    <h2 class="section-title">Core technologies</h2>
-                    <p class="section-desc">
-                        The tools I use to bend space and craft interactive
-                        experiences.
-                    </p>
-                </div>
-                <div class="skills-grid">
-                    <div class="skill-card reveal reveal-delay-1" data-tilt>
-                        <span class="icon">⚛️</span>
-                        <h4>React</h4>
-                    </div>
-                    <div class="skill-card reveal reveal-delay-2" data-tilt>
-                        <span class="icon">🟦</span>
-                        <h4>TypeScript</h4>
-                    </div>
-                    <div class="skill-card reveal reveal-delay-3" data-tilt>
-                        <span class="icon">🌀</span>
-                        <h4>Framer</h4>
-                    </div>
-                    <div class="skill-card reveal reveal-delay-4" data-tilt>
-                        <span class="icon">🌌</span>
-                        <h4>Three.js</h4>
-                    </div>
-                    <div class="skill-card reveal reveal-delay-1" data-tilt>
-                        <span class="icon">💫</span>
-                        <h4>GSAP</h4>
-                    </div>
-                    <div class="skill-card reveal reveal-delay-2" data-tilt>
-                        <span class="icon">🪐</span>
-                        <h4>Node.js</h4>
-                    </div>
-                </div>
-            </div>
-        </section>
+      <div class="card">
+        <h3>Project One</h3>
+        <p>A short description of what this project does and why it's interesting.</p>
+        <div class="tags">
+          <span class="tag">HTML</span>
+          <span class="tag">CSS</span>
+          <span class="tag">JavaScript</span>
+        </div>
+        <a href="#" target="_blank">View Project →</a>
+      </div>
 
-        <!-- ===== PROJECTS ===== -->
-        <section id="projects">
-            <div class="container">
-                <div class="reveal">
-                    <span class="section-label">accretion disk</span>
-                    <h2 class="section-title">Featured work</h2>
-                    <p class="section-desc">
-                        Projects that orbit around motion, interaction, and
-                        immersive design.
-                    </p>
-                </div>
-                <div class="projects-grid">
-                    <article class="project-card reveal reveal-delay-1">
-                        <div class="project-thumb">
-                            <span>🌀</span>
-                            <div class="glow-overlay"></div>
-                        </div>
-                        <div class="project-body">
-                            <h3>Gravity UI</h3>
-                            <p>An interactive component library with physics-based animations and orbital transitions.</p>
-                            <div class="project-tags">
-                                <span>React</span>
-                                <span>Framer</span>
-                                <span>CSS</span>
-                            </div>
-                        </div>
-                    </article>
+      <div class="card">
+        <h3>Project Two</h3>
+        <p>Another cool thing you built. Keep descriptions to 1–2 sentences.</p>
+        <div class="tags">
+          <span class="tag">React</span>
+          <span class="tag">Node.js</span>
+        </div>
+        <a href="#" target="_blank">View Project →</a>
+      </div>
 
-                    <article class="project-card reveal reveal-delay-2">
-                        <div class="project-thumb">
-                            <span>🌠</span>
-                            <div class="glow-overlay"></div>
-                        </div>
-                        <div class="project-body">
-                            <h3>Stellar Dashboard</h3>
-                            <p>Real-time data visualization with animated charts, particle systems, and dark matter UI.</p>
-                            <div class="project-tags">
-                                <span>D3</span>
-                                <span>TypeScript</span>
-                                <span>Canvas</span>
-                            </div>
-                        </div>
-                    </article>
-
-                    <article class="project-card reveal reveal-delay-3">
-                        <div class="project-thumb">
-                            <span>🪐</span>
-                            <div class="glow-overlay"></div>
-                        </div>
-                        <div class="project-body">
-                            <h3>Orbit Explorer</h3>
-                            <p>3D solar system simulation with gravitational lensing, orbital mechanics, and VR support.</p>
-                            <div class="project-tags">
-                                <span>Three.js</span>
-                                <span>WebXR</span>
-                                <span>GSAP</span>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== QUOTE ===== -->
-        <section id="quote" style="padding-top: 0;">
-            <div class="container">
-                <div class="quote-block reveal">
-                    <blockquote>
-                        “The black hole teaches us that space can be twisted,
-                        time can be warped, and the impossible becomes
-                        inevitable — just like great design.”
-                    </blockquote>
-                    <cite>— Astrophysics of Creativity</cite>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== CONTACT ===== -->
-        <section id="contact">
-            <div class="container">
-                <div class="reveal">
-                    <span class="section-label">gravitational wave</span>
-                    <h2 class="section-title">Let's bend space<br />together</h2>
-                    <p class="section-desc">
-                        Have a project that defies gravity? I'm ready to orbit.
-                    </p>
-                </div>
-                <div class="contact-wrap">
-                    <div class="contact-info reveal reveal-delay-1">
-                        <h3>Send a signal</h3>
-                        <p>
-                            Whether you need a full immersive experience or a
-                            motion-driven interface — I'm here to help.
-                        </p>
-                        <div class="contact-social">
-                            <a href="#" aria-label="GitHub">🐙</a>
-                            <a href="#" aria-label="LinkedIn">🔗</a>
-                            <a href="#" aria-label="Twitter">🐦</a>
-                            <a href="#" aria-label="Dribbble">🏀</a>
-                        </div>
-                    </div>
-                    <form class="contact-form reveal reveal-delay-2" id="contactForm">
-                        <input type="text" placeholder="Your name" required />
-                        <input type="email" placeholder="you@example.com" required />
-                        <textarea placeholder="Tell me about your project…" required></textarea>
-                        <button type="submit" class="btn btn-primary">Send message ✦</button>
-                    </form>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== FOOTER ===== -->
-        <footer>
-            <div class="container">
-                <p>
-                    &copy; 2026 — crafted beyond the
-                    <span style="color: var(--accent-purple);">✦</span> event horizon
-                </p>
-            </div>
-        </footer>
+      <div class="card">
+        <h3>Project Three</h3>
+        <p>Showcase your best work here. Link to live demo and GitHub repo.</p>
+        <div class="tags">
+          <span class="tag">Python</span>
+          <span class="tag">API</span>
+        </div>
+        <a href="#" target="_blank">View Project →</a>
+      </div>
 
     </div>
-    <!-- /content -->
+  </section>
 
+  <!-- CONTACT -->
+  <section id="contact">
+    <h2 class="section-title">Let's Connect</h2>
+    <p class="about-text">
+      Have a project in mind, or just want to say hi? Reach out anytime.
+    </p>
+    <div class="contact-links">
+      <a href="mailto:you@example.com" class="btn btn-primary">Email Me</a>
+      <a href="https://github.com/yourusername" target="_blank" class="btn btn-ghost">GitHub</a>
+      <a href="https://linkedin.com/in/yourusername" target="_blank" class="btn btn-ghost">LinkedIn</a>
+    </div>
+  </section>
 
-    <!-- ============================================================
-    JAVASCRIPT — Black Hole + Interactions
-    ============================================================ -->
-    <script>
-        // ============================================================
-        // 1. BLACK HOLE CANVAS — accretion disk + particles
-        // ============================================================
-        (function initBlackHole() {
-            const canvas = document.getElementById('blackhole-canvas');
-            const ctx = canvas.getContext('2d');
-            let W, H;
-            let time = 0;
+</main>
 
-            // --- resize ---
-            function resize() {
-                W = canvas.width = window.innerWidth;
-                H = canvas.height = window.innerHeight;
-            }
-            window.addEventListener('resize', resize);
-            resize();
+<footer>
+  © <span id="year"></span> Your Name. Built with ❤️ and motion.
+</footer>
 
-            // --- star particles (background) ---
-            const stars = [];
-            for (let i = 0; i < 280; i++) {
-                stars.push({
-                    x: Math.random() * W,
-                    y: Math.random() * H,
-                    r: Math.random() * 1.2 + 0.3,
-                    a: Math.random() * 0.5 + 0.2,
-                    speed: Math.random() * 0.008 + 0.004,
-                });
-            }
+<script>
+/* ============================================
+   🌌 PARTICLE MOTION BACKGROUND
+   ============================================ */
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
 
-            // --- accretion disk particles ---
-            const diskParticles = [];
-            const DISK_COUNT = 280;
-            for (let i = 0; i < DISK_COUNT; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const radius = 120 + Math.random() * 280;
-                diskParticles.push({
-                    angle: angle,
-                    radius: radius,
-                    speed: (0.6 + Math.random() * 0.8) * (1 / (radius * 0.02 + 0.5)),
-                    size: Math.random() * 2.8 + 1.2,
-                    offset: Math.random() * 100,
-                    hue: 260 + Math.random() * 40, // purple to blue
-                    sat: 70 + Math.random() * 30,
-                    light: 50 + Math.random() * 30,
-                });
-            }
+let particles = [];
+let mouse = { x: null, y: null, radius: 140 };
 
-            // --- inner glow particles (spiraling in) ---
-            const spiralParticles = [];
-            for (let i = 0; i < 120; i++) {
-                spiralParticles.push({
-                    angle: Math.random() * Math.PI * 2,
-                    radius: 40 + Math.random() * 160,
-                    speed: 0.8 + Math.random() * 0.6,
-                    size: Math.random() * 1.6 + 0.6,
-                    life: Math.random(),
-                    decay: 0.001 + Math.random() * 0.003,
-                });
-            }
+/* ---- TUNABLE SETTINGS ---- */
+const SETTINGS = {
+  particleCount: 70,       // How many dots
+  maxSpeed: 0.5,           // Movement speed
+  connectDistance: 130,    // Max distance to draw lines
+  particleSize: 2          // Dot radius
+};
 
-            // --- main draw ---
-            function draw() {
-                time += 0.008;
-                const cx = W / 2;
-                const cy = H / 2;
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  initParticles();
+}
 
-                // --- clear ---
-                ctx.clearRect(0, 0, W, H);
+function initParticles() {
+  particles = [];
+  const count = Math.min(SETTINGS.particleCount, Math.floor(window.innerWidth / 18));
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * SETTINGS.maxSpeed * 2,
+      vy: (Math.random() - 0.5) * SETTINGS.maxSpeed * 2,
+      size: Math.random() * SETTINGS.particleSize + 1
+    });
+  }
+}
 
-                // --- background stars (parallax) ---
-                for (const s of stars) {
-                    const px = (s.x + time * s.speed * 30) % W;
-                    ctx.beginPath();
-                    ctx.arc(px, s.y, s.r, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255,255,255,${s.a})`;
-                    ctx.fill();
-                }
+function getCSSVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
 
-                // --- draw accretion disk (outer) ---
-                for (const p of diskParticles) {
-                    p.angle += p.speed * 0.04;
-                    const rad = p.radius + Math.sin(time * 0.5 + p.offset) * 4;
-                    const x = cx + Math.cos(p.angle) * rad;
-                    const y = cy + Math.sin(p.angle) * rad * 0.65; // elliptical flatten
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                    // distance from center for glow
-                    const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
-                    const alpha = 0.5 + 0.5 * Math.sin(time * 2 + p.angle);
-                    const size = p.size * (0.6 + 0.4 * Math.sin(time + p.offset));
+  const particleColor = getCSSVar('--particle-color') || '#6ee7ff';
+  const lineColor = getCSSVar('--line-color') || '#6ee7ff';
 
-                    const grad = ctx.createRadialGradient(x, y, 0, x, y, size * 2);
-                    grad.addColorStop(0, `hsla(${p.hue}, ${p.sat}%, ${p.light + 10}%, ${0.7 * (1 - dist / 500)})`);
-                    grad.addColorStop(1, `hsla(${p.hue - 20}, ${p.sat}%, ${p.light - 10}%, 0)`);
+  // Update + draw particles
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
 
-                    ctx.beginPath();
-                    ctx.arc(x, y, size * 1.8, 0, Math.PI * 2);
-                    ctx.fillStyle = grad;
-                    ctx.fill();
+    // Wrap around edges
+    if (p.x < 0) p.x = canvas.width;
+    if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height;
+    if (p.y > canvas.height) p.y = 0;
 
-                    // core dot
-                    ctx.beginPath();
-                    ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
-                    ctx.fillStyle = `hsla(${p.hue + 20}, 90%, 80%, ${0.4 * (1 - dist / 500)})`;
-                    ctx.fill();
-                }
+    // Mouse repel
+    const dx = p.x - mouse.x;
+    const dy = p.y - mouse.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist < mouse.radius) {
+      const force = (mouse.radius - dist) / mouse.radius;
+      p.x += (dx / dist) * force * 2;
+      p.y += (dy / dist) * force * 2;
+    }
 
-                // --- draw spiral particles (inner accretion) ---
-                for (const sp of spiralParticles) {
-                    sp.angle += sp.speed * 0.03;
-                    sp.radius -= 0.08;
-                    if (sp.radius < 10) {
-                        sp.radius = 40 + Math.random() * 140;
-                        sp.angle = Math.random() * Math.PI * 2;
-                        sp.life = 0;
-                    }
-                    sp.life += sp.decay;
-                    const x = cx + Math.cos(sp.angle) * sp.radius;
-                    const y = cy + Math.sin(sp.angle) * sp.radius * 0.6;
-                    const alpha = Math.max(0, 1 - sp.life * 1.2);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = particleColor;
+    ctx.globalAlpha = 0.8;
+    ctx.fill();
+  });
 
-                    const grad = ctx.createRadialGradient(x, y, 0, x, y, sp.size * 3);
-                    grad.addColorStop(0, `rgba(200, 160, 255, ${alpha * 0.5})`);
-                    grad.addColorStop(0.5, `rgba(139, 92, 246, ${alpha * 0.3})`);
-                    grad.addColorStop(1, `rgba(139, 92, 246, 0)`);
+  // Draw lines between nearby particles
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < SETTINGS.connectDistance) {
+        const alpha = 1 - dist / SETTINGS.connectDistance;
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = lineColor;
+        ctx.globalAlpha = alpha * 0.35;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+  }
 
-                    ctx.beginPath();
-                    ctx.arc(x, y, sp.size * 2.5, 0, Math.PI * 2);
-                    ctx.fillStyle = grad;
-                    ctx.fill();
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(draw);
+}
 
-                    // bright core
-                    ctx.beginPath();
-                    ctx.arc(x, y, sp.size * 0.4, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255, 220, 255, ${alpha * 0.5})`;
-                    ctx.fill();
-                }
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('mousemove', e => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+});
+window.addEventListener('mouseout', () => {
+  mouse.x = null;
+  mouse.y = null;
+});
 
-                // --- draw event horizon (black hole core) ---
-                const coreRadius = 38 + Math.sin(time * 0.6) * 2;
+resizeCanvas();
+draw();
 
-                // outer glow
-                const glowGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius * 3.5);
-                glowGrad.addColorStop(0, 'rgba(139, 92, 246, 0.25)');
-                glowGrad.addColorStop(0.3, 'rgba(79, 140, 247, 0.10)');
-                glowGrad.addColorStop(1, 'rgba(0,0,0,0)');
-                ctx.beginPath();
-                ctx.arc(cx, cy, coreRadius * 3.5, 0, Math.PI * 2);
-                ctx.fillStyle = glowGrad;
-                ctx.fill();
+/* ============================================
+   ✨ SCROLL REVEAL FOR CARDS
+   ============================================ */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in-view');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
 
-                // inner glow ring (photon ring)
-                for (let i = 0; i < 2; i++) {
-                    const ringR = coreRadius * (1.5 + i * 0.6) + Math.sin(time * 0.8 + i) * 3;
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
-                    ctx.strokeStyle = `rgba(180, 140, 255, ${0.08 + i * 0.04})`;
-                    ctx.lineWidth = 1.5 + i * 0.5;
-                    ctx.setLineDash([4, 8]);
-                    ctx.stroke();
-                    ctx.setLineDash([]);
-                }
+document.querySelectorAll('.card').forEach(card => observer.observe(card));
 
-                // core shadow (event horizon)
-                const coreGrad = ctx.createRadialGradient(cx - 8, cy - 8, 0, cx, cy, coreRadius);
-                coreGrad.addColorStop(0, '#0a0a18');
-                coreGrad.addColorStop(0.7, '#0a0a18');
-                coreGrad.addColorStop(0.9, '#1a0a2a');
-                coreGrad.addColorStop(1, '#2a1a3a');
-                ctx.beginPath();
-                ctx.arc(cx, cy, coreRadius, 0, Math.PI * 2);
-                ctx.fillStyle = coreGrad;
-                ctx.fill();
-
-                // lens flare / bright edge
-                ctx.beginPath();
-                ctx.arc(cx - 12, cy - 8, coreRadius * 0.35, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(180, 140, 255, 0.06)';
-                ctx.fill();
-
-                // tiny bright point at center
-                ctx.beginPath();
-                ctx.arc(cx - 4, cy - 2, 3, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(220, 200, 255, 0.15)';
-                ctx.fill();
-
-                // --- draw gravitational lensing arcs ---
-                for (let i = 0; i < 3; i++) {
-                    const angleOff = time * 0.3 + i * 2.1;
-                    const arcR = coreRadius * (2.2 + i * 0.8);
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, arcR + Math.sin(time * 0.5 + i) * 4, angleOff, angleOff + 0.8);
-                    ctx.strokeStyle = `rgba(180, 140, 255, ${0.04 - i * 0.01})`;
-                    ctx.lineWidth = 1.5 + i * 0.4;
-                    ctx.stroke();
-                }
-
-                requestAnimationFrame(draw);
-            }
-
-            draw();
-
-            // handle resize after orientation
-            let resizeTimer;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(resize, 200);
-            });
-        })();
-
-
-        // ============================================================
-        // 2. NAVBAR SCROLL
-        // ============================================================
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 60) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
-
-        // ============================================================
-        // 3. MOBILE NAV TOGGLE
-        // ============================================================
-        const toggle = document.getElementById('navToggle');
-        const navLinks = document.getElementById('navLinks');
-
-        toggle.addEventListener('click', () => {
-            const open = navLinks.classList.toggle('open');
-            toggle.classList.toggle('open');
-            toggle.setAttribute('aria-expanded', open);
-        });
-
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                navLinks.classList.remove('open');
-                toggle.classList.remove('open');
-                toggle.setAttribute('aria-expanded', 'false');
-            });
-        });
-
-
-        // ============================================================
-        // 4. SCROLL REVEAL (Intersection Observer)
-        // ============================================================
-        const revealEls = document.querySelectorAll('.reveal');
-        const revealObserver = new IntersectionObserver((entries) => {
-            for (const entry of entries) {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            }
-        }, {
-            threshold: 0.12,
-            rootMargin: '0px 0px -30px 0px',
-        });
-        revealEls.forEach(el => revealObserver.observe(el));
-
-
-        // ============================================================
-        // 5. SKILL CARD TILT
-        // ============================================================
-        document.querySelectorAll('[data-tilt]').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
-                card.style.setProperty('--mx', x + '%');
-                card.style.setProperty('--my', y + '%');
-            });
-            card.addEventListener('mouseleave', () => {
-                card.style.setProperty('--mx', '50%');
-                card.style.setProperty('--my', '50%');
-            });
-        });
-
-
-        // ============================================================
-        // 6. CONTACT FORM
-        // ============================================================
-        document.getElementById('contactForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('🌌 Signal received! I\'ll be in touch soon.');
-            e.target.reset();
-        });
-
-
-        // ============================================================
-        // 7. SMOOTH ANCHOR SCROLL
-        // ============================================================
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    e.preventDefault();
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-
-        console.log('✦ Black Hole Portfolio — event horizon active');
-    </script>
+/* ============================================
+   📅 FOOTER YEAR
+   ============================================ */
+document.getElementById('year').textContent = new Date().getFullYear();
+</script>
 
 </body>
 </html>
