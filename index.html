@@ -6,222 +6,398 @@
 <title>Your Name — Portfolio</title>
 
 <style>
-  /* ============================================
-     🎨 EDIT THESE COLORS TO CHANGE THE THEME
-     ============================================ */
+  /* ============================================================
+     🎨 THEME — EDIT THESE TO CHANGE THE ENTIRE LOOK
+     ============================================================ */
   :root {
-    --bg-dark: #0a0a1a;          /* Background base color */
-    --particle-color: #6ee7ff;    /* Floating dots color */
-    --line-color: #6ee7ff;        /* Lines between dots */
-    --accent: #7c3aed;            /* Accent / highlight color */
-    --accent-2: #06b6d4;          /* Secondary accent */
-    --text-main: #f1f5f9;         /* Main text color */
-    --text-muted: #94a3b8;        /* Muted text */
-    --card-bg: rgba(15, 23, 42, 0.55); /* Glass card background */
-    --card-border: rgba(148, 163, 184, 0.15);
+    --bg: #0a0a0a;                 /* Base background */
+    --bg-2: #111114;               /* Slightly lifted bg */
+    --text: #f5f5f7;               /* Main text */
+    --text-muted: #8a8a93;         /* Secondary text */
+    --line: rgba(255,255,255,0.08);
+    --card: rgba(255,255,255,0.03);
+    --card-hover: rgba(255,255,255,0.05);
+
+    /* Blob colors — the big soft glows in the background */
+    --blob-1: #7c5cff;   /* purple */
+    --blob-2: #00b3ff;   /* blue   */
+    --blob-3: #00ffa3;   /* teal   */
+    --blob-4: #ff5c8a;   /* pink   */
+
+    --accent: #ffffff;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  html, body {
-    height: 100%;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg-dark);
-    color: var(--text-main);
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
-    scroll-behavior: smooth;
+    line-height: 1.5;
   }
 
-  /* ============================================
-     🌌 MOTION BACKGROUND (Canvas)
-     ============================================ */
-  #bg-canvas {
+  /* ============================================================
+     🌌 BACKGROUND LAYERS
+     ============================================================ */
+
+  /* 1) Soft animated gradient blobs */
+  .bg-blobs {
     position: fixed;
     inset: 0;
     z-index: 0;
-    display: block;
+    overflow: hidden;
+    filter: blur(80px);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    will-change: transform;
+  }
+  .blob-1 {
+    width: 55vw; height: 55vw;
+    background: radial-gradient(circle, var(--blob-1), transparent 65%);
+    top: -15%; left: -10%;
+    animation: float1 22s ease-in-out infinite alternate;
+  }
+  .blob-2 {
+    width: 50vw; height: 50vw;
+    background: radial-gradient(circle, var(--blob-2), transparent 65%);
+    top: 25%; right: -15%;
+    animation: float2 26s ease-in-out infinite alternate;
+  }
+  .blob-3 {
+    width: 45vw; height: 45vw;
+    background: radial-gradient(circle, var(--blob-3), transparent 65%);
+    bottom: -20%; left: 15%;
+    animation: float3 30s ease-in-out infinite alternate;
+  }
+  .blob-4 {
+    width: 40vw; height: 40vw;
+    background: radial-gradient(circle, var(--blob-4), transparent 65%);
+    bottom: 10%; right: 10%;
+    animation: float4 24s ease-in-out infinite alternate;
   }
 
-  /* Animated gradient overlay for extra motion feel */
-  .gradient-overlay {
+  @keyframes float1 {
+    0%   { transform: translate(0,0) scale(1); }
+    100% { transform: translate(15%, 10%) scale(1.15); }
+  }
+  @keyframes float2 {
+    0%   { transform: translate(0,0) scale(1); }
+    100% { transform: translate(-12%, 8%) scale(1.1); }
+  }
+  @keyframes float3 {
+    0%   { transform: translate(0,0) scale(1); }
+    100% { transform: translate(10%, -10%) scale(1.2); }
+  }
+  @keyframes float4 {
+    0%   { transform: translate(0,0) scale(1); }
+    100% { transform: translate(-8%, -12%) scale(1.08); }
+  }
+
+  /* 2) Subtle dot grid overlay */
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  /* 3) Vignette to darken edges */
+  .bg-vignette {
     position: fixed;
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    background:
-      radial-gradient(circle at 20% 30%, rgba(124, 58, 237, 0.18), transparent 45%),
-      radial-gradient(circle at 80% 70%, rgba(6, 182, 212, 0.18), transparent 45%);
-    animation: drift 18s ease-in-out infinite alternate;
-  }
-  @keyframes drift {
-    0%   { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(-3%, 3%) scale(1.05); }
+    background: radial-gradient(ellipse at center,
+      transparent 0%,
+      rgba(10,10,10,0.4) 60%,
+      var(--bg) 100%);
   }
 
-  /* ============================================
-     📄 CONTENT LAYER (scrolls over background)
-     ============================================ */
+  /* 4) Grain / noise texture */
+  .bg-noise {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* ============================================================
+     🧭 NAV
+     ============================================================ */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 20;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background: rgba(10,10,10,0.5);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--line);
+    font-size: 0.88rem;
+  }
+  .nav .logo {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav ul {
+    list-style: none;
+    display: flex;
+    gap: 32px;
+  }
+  .nav ul a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .nav ul a:hover { color: var(--text); }
+
+  /* ============================================================
+     📄 CONTENT WRAPPER
+     ============================================================ */
   .content {
     position: relative;
-    z-index: 2;
-    max-width: 1100px;
+    z-index: 5;
+    max-width: 1140px;
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 0 32px;
   }
 
-  /* ---------- HERO ---------- */
+  /* ============================================================
+     🎯 HERO
+     ============================================================ */
   .hero {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-start;
-    padding: 80px 0;
+    padding: 140px 0 100px;
   }
+  .hero .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.02);
+    margin-bottom: 32px;
+    width: fit-content;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.1s;
+  }
+  .hero .badge .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--blob-3);
+    box-shadow: 0 0 12px var(--blob-3);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50%     { opacity: 0.4; }
+  }
+
   .hero h1 {
-    font-size: clamp(2.2rem, 6vw, 4.5rem);
-    font-weight: 800;
-    line-height: 1.1;
-    margin-bottom: 16px;
-    background: linear-gradient(135deg, var(--text-main), var(--accent-2));
+    font-size: clamp(2.5rem, 6.5vw, 5.2rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.02;
+    margin-bottom: 28px;
+    background: linear-gradient(180deg, #ffffff 0%, #b8b8c0 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    max-width: 900px;
     opacity: 0;
-    animation: fadeUp 0.9s ease forwards 0.2s;
+    animation: fadeUp 0.9s ease forwards 0.25s;
   }
   .hero .tagline {
-    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    font-size: clamp(1rem, 1.8vw, 1.25rem);
     color: var(--text-muted);
-    max-width: 640px;
-    margin-bottom: 32px;
+    max-width: 620px;
+    line-height: 1.6;
+    margin-bottom: 40px;
     opacity: 0;
     animation: fadeUp 0.9s ease forwards 0.5s;
   }
   .hero .cta-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 14px;
+    gap: 12px;
     opacity: 0;
-    animation: fadeUp 0.9s ease forwards 0.8s;
+    animation: fadeUp 0.9s ease forwards 0.75s;
   }
 
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
+    from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ---------- BUTTONS ---------- */
+  /* ============================================================
+     🔘 BUTTONS
+     ============================================================ */
   .btn {
-    display: inline-block;
-    padding: 12px 26px;
-    border-radius: 999px;
-    font-weight: 600;
-    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 500;
     text-decoration: none;
-    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s;
+    transition: transform 0.2s ease, background 0.2s ease,
+                border-color 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
     border: 1px solid transparent;
   }
   .btn-primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    color: #fff;
-    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35);
+    background: #ffffff;
+    color: #0a0a0a;
   }
   .btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 32px rgba(124, 58, 237, 0.55);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(255,255,255,0.15);
   }
   .btn-ghost {
-    background: transparent;
-    border-color: var(--card-border);
-    color: var(--text-main);
+    background: rgba(255,255,255,0.03);
+    border-color: var(--line);
+    color: var(--text);
   }
   .btn-ghost:hover {
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateY(-3px);
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(255,255,255,0.2);
+    transform: translateY(-1px);
   }
 
-  /* ---------- SECTIONS ---------- */
+  /* ============================================================
+     📚 SECTIONS
+     ============================================================ */
   section {
-    padding: 100px 0;
+    padding: 120px 0;
+  }
+  .section-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--text-muted);
+    margin-bottom: 16px;
   }
   .section-title {
-    font-size: clamp(1.6rem, 4vw, 2.4rem);
-    font-weight: 700;
-    margin-bottom: 40px;
-    position: relative;
-    display: inline-block;
-  }
-  .section-title::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -10px;
-    width: 60px;
-    height: 4px;
-    border-radius: 2px;
-    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    font-size: clamp(1.8rem, 3.5vw, 2.75rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    margin-bottom: 48px;
+    max-width: 700px;
+    line-height: 1.15;
   }
 
-  /* ---------- GLASS CARDS ---------- */
+  /* ============================================================
+     🪟 CARDS
+     ============================================================ */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
   .card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 18px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
     padding: 28px;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    transition: background 0.3s ease, border-color 0.3s ease,
+                transform 0.4s ease, opacity 0.7s ease;
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(28px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
   }
   .card.in-view {
     opacity: 1;
     transform: translateY(0);
-    transition: opacity 0.7s ease, transform 0.7s ease,
-                border-color 0.35s ease, box-shadow 0.35s ease;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left,
+      rgba(124,92,255,0.12), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
   }
   .card:hover {
-    transform: translateY(-6px);
-    border-color: var(--accent);
-    box-shadow: 0 20px 40px rgba(124, 58, 237, 0.2);
+    background: var(--card-hover);
+    border-color: rgba(255,255,255,0.15);
+    transform: translateY(-4px);
   }
+  .card:hover::before { opacity: 1; }
+
   .card h3 {
-    font-size: 1.2rem;
+    font-size: 1.08rem;
+    font-weight: 600;
     margin-bottom: 10px;
-    color: var(--text-main);
+    letter-spacing: -0.01em;
   }
   .card p {
     color: var(--text-muted);
-    line-height: 1.6;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
+    line-height: 1.65;
   }
   .card .tags {
-    margin-top: 14px;
+    margin-top: 18px;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
   }
   .tag {
-    font-size: 0.75rem;
-    padding: 4px 12px;
-    border-radius: 999px;
-    background: rgba(124, 58, 237, 0.15);
-    color: var(--accent-2);
-    border: 1px solid rgba(124, 58, 237, 0.3);
+    font-size: 0.72rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.05);
+    color: var(--text-muted);
+    border: 1px solid var(--line);
   }
   .card a {
-    display: inline-block;
-    margin-top: 16px;
-    color: var(--accent-2);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 20px;
+    color: var(--text);
     text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
+    font-weight: 500;
+    font-size: 0.88rem;
+    transition: gap 0.2s ease;
   }
-  .card a:hover { text-decoration: underline; }
+  .card a:hover { gap: 8px; }
 
-  /* ---------- ABOUT ---------- */
+  /* ============================================================
+     👤 ABOUT
+     ============================================================ */
   .about-text {
     max-width: 720px;
     color: var(--text-muted);
@@ -229,81 +405,59 @@
     font-size: 1.05rem;
   }
 
-  /* ---------- PROJECTS GRID ---------- */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
-  }
-
-  /* ---------- CONTACT ---------- */
+  /* ============================================================
+     📬 CONTACT
+     ============================================================ */
   .contact-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 14px;
-    margin-top: 24px;
+    gap: 12px;
+    margin-top: 28px;
   }
 
-  /* ---------- FOOTER ---------- */
+  /* ============================================================
+     🔻 FOOTER
+     ============================================================ */
   footer {
+    position: relative;
+    z-index: 5;
     text-align: center;
-    padding: 40px 24px;
+    padding: 48px 32px 40px;
     color: var(--text-muted);
-    font-size: 0.85rem;
-    border-top: 1px solid var(--card-border);
-    margin-top: 60px;
+    font-size: 0.82rem;
+    border-top: 1px solid var(--line);
+    margin-top: 80px;
   }
 
-  /* ---------- TOP NAV (optional) ---------- */
-  .nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 10;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 18px 32px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    background: rgba(10, 10, 26, 0.4);
-    border-bottom: 1px solid var(--card-border);
-    font-size: 0.9rem;
-  }
-  .nav .logo {
-    font-weight: 700;
-    color: var(--text-main);
-    text-decoration: none;
-    letter-spacing: 0.5px;
-  }
-  .nav ul {
-    list-style: none;
-    display: flex;
-    gap: 24px;
-  }
-  .nav ul a {
-    color: var(--text-muted);
-    text-decoration: none;
-    transition: color 0.25s;
-  }
-  .nav ul a:hover { color: var(--accent-2); }
-
+  /* ============================================================
+     📱 RESPONSIVE
+     ============================================================ */
   @media (max-width: 640px) {
-    .nav ul { gap: 14px; font-size: 0.8rem; }
-    .nav { padding: 14px 18px; }
-    section { padding: 70px 0; }
+    .nav { padding: 16px 20px; }
+    .nav ul { gap: 18px; font-size: 0.8rem; }
+    .content { padding: 0 20px; }
+    section { padding: 80px 0; }
+    .hero { padding: 120px 0 80px; }
   }
 </style>
 </head>
 
 <body>
 
-<!-- 🌌 MOTION BACKGROUND -->
-<canvas id="bg-canvas"></canvas>
-<div class="gradient-overlay"></div>
+<!-- 🌌 BACKGROUND LAYERS -->
+<div class="bg-blobs">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+</div>
+<div class="bg-grid"></div>
+<div class="bg-noise"></div>
+<div class="bg-vignette"></div>
 
-<!-- 🧭 NAVIGATION -->
+<!-- 🧭 NAV -->
 <nav class="nav">
-  <a href="#home" class="logo">YOUR NAME</a>
+  <a href="#home" class="logo">Your Name</a>
   <ul>
     <li><a href="#about">About</a></li>
     <li><a href="#projects">Projects</a></li>
@@ -316,20 +470,25 @@
 
   <!-- HERO -->
   <section class="hero" id="home">
-    <h1>Hi, I'm Your Name.</h1>
+    <div class="badge">
+      <span class="dot"></span>
+      Available for work
+    </div>
+    <h1>Hi, I'm Your Name.<br/>I build things for the web.</h1>
     <p class="tagline">
-      A passionate developer crafting clean, interactive experiences for the web.
-      Welcome to my corner of the internet.
+      A developer focused on crafting clean, thoughtful, and performant
+      digital experiences. Welcome to my portfolio.
     </p>
     <div class="cta-row">
-      <a href="#projects" class="btn btn-primary">View My Work</a>
+      <a href="#projects" class="btn btn-primary">View Projects →</a>
       <a href="#contact" class="btn btn-ghost">Get in Touch</a>
     </div>
   </section>
 
   <!-- ABOUT -->
   <section id="about">
-    <h2 class="section-title">About Me</h2>
+    <div class="section-label">About</div>
+    <h2 class="section-title">A short introduction to who I am.</h2>
     <p class="about-text">
       I'm a software developer based in Your City, focused on building modern,
       performant web applications. I love turning complex problems into simple,
@@ -340,7 +499,8 @@
 
   <!-- PROJECTS -->
   <section id="projects">
-    <h2 class="section-title">Projects</h2>
+    <div class="section-label">Work</div>
+    <h2 class="section-title">Selected projects.</h2>
     <div class="grid">
 
       <div class="card">
@@ -351,7 +511,7 @@
           <span class="tag">CSS</span>
           <span class="tag">JavaScript</span>
         </div>
-        <a href="#" target="_blank">View Project →</a>
+        <a href="#" target="_blank">View project →</a>
       </div>
 
       <div class="card">
@@ -361,7 +521,7 @@
           <span class="tag">React</span>
           <span class="tag">Node.js</span>
         </div>
-        <a href="#" target="_blank">View Project →</a>
+        <a href="#" target="_blank">View project →</a>
       </div>
 
       <div class="card">
@@ -371,7 +531,7 @@
           <span class="tag">Python</span>
           <span class="tag">API</span>
         </div>
-        <a href="#" target="_blank">View Project →</a>
+        <a href="#" target="_blank">View project →</a>
       </div>
 
     </div>
@@ -379,7 +539,8 @@
 
   <!-- CONTACT -->
   <section id="contact">
-    <h2 class="section-title">Let's Connect</h2>
+    <div class="section-label">Contact</div>
+    <h2 class="section-title">Let's build something together.</h2>
     <p class="about-text">
       Have a project in mind, or just want to say hi? Reach out anytime.
     </p>
@@ -393,124 +554,13 @@
 </main>
 
 <footer>
-  © <span id="year"></span> Your Name. Built with ❤️ and motion.
+  © <span id="year"></span> Your Name. All rights reserved.
 </footer>
 
 <script>
-/* ============================================
-   🌌 PARTICLE MOTION BACKGROUND
-   ============================================ */
-const canvas = document.getElementById('bg-canvas');
-const ctx = canvas.getContext('2d');
-
-let particles = [];
-let mouse = { x: null, y: null, radius: 140 };
-
-/* ---- TUNABLE SETTINGS ---- */
-const SETTINGS = {
-  particleCount: 70,       // How many dots
-  maxSpeed: 0.5,           // Movement speed
-  connectDistance: 130,    // Max distance to draw lines
-  particleSize: 2          // Dot radius
-};
-
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  initParticles();
-}
-
-function initParticles() {
-  particles = [];
-  const count = Math.min(SETTINGS.particleCount, Math.floor(window.innerWidth / 18));
-  for (let i = 0; i < count; i++) {
-    particles.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * SETTINGS.maxSpeed * 2,
-      vy: (Math.random() - 0.5) * SETTINGS.maxSpeed * 2,
-      size: Math.random() * SETTINGS.particleSize + 1
-    });
-  }
-}
-
-function getCSSVar(name) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-}
-
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  const particleColor = getCSSVar('--particle-color') || '#6ee7ff';
-  const lineColor = getCSSVar('--line-color') || '#6ee7ff';
-
-  // Update + draw particles
-  particles.forEach(p => {
-    p.x += p.vx;
-    p.y += p.vy;
-
-    // Wrap around edges
-    if (p.x < 0) p.x = canvas.width;
-    if (p.x > canvas.width) p.x = 0;
-    if (p.y < 0) p.y = canvas.height;
-    if (p.y > canvas.height) p.y = 0;
-
-    // Mouse repel
-    const dx = p.x - mouse.x;
-    const dy = p.y - mouse.y;
-    const dist = Math.hypot(dx, dy);
-    if (dist < mouse.radius) {
-      const force = (mouse.radius - dist) / mouse.radius;
-      p.x += (dx / dist) * force * 2;
-      p.y += (dy / dist) * force * 2;
-    }
-
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-    ctx.fillStyle = particleColor;
-    ctx.globalAlpha = 0.8;
-    ctx.fill();
-  });
-
-  // Draw lines between nearby particles
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x;
-      const dy = particles[i].y - particles[j].y;
-      const dist = Math.hypot(dx, dy);
-      if (dist < SETTINGS.connectDistance) {
-        const alpha = 1 - dist / SETTINGS.connectDistance;
-        ctx.beginPath();
-        ctx.moveTo(particles[i].x, particles[i].y);
-        ctx.lineTo(particles[j].x, particles[j].y);
-        ctx.strokeStyle = lineColor;
-        ctx.globalAlpha = alpha * 0.35;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-    }
-  }
-
-  ctx.globalAlpha = 1;
-  requestAnimationFrame(draw);
-}
-
-window.addEventListener('resize', resizeCanvas);
-window.addEventListener('mousemove', e => {
-  mouse.x = e.clientX;
-  mouse.y = e.clientY;
-});
-window.addEventListener('mouseout', () => {
-  mouse.x = null;
-  mouse.y = null;
-});
-
-resizeCanvas();
-draw();
-
-/* ============================================
+/* ============================================================
    ✨ SCROLL REVEAL FOR CARDS
-   ============================================ */
+   ============================================================ */
 const observer = new IntersectionObserver(entries => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -522,10 +572,24 @@ const observer = new IntersectionObserver(entries => {
 
 document.querySelectorAll('.card').forEach(card => observer.observe(card));
 
-/* ============================================
+/* ============================================================
    📅 FOOTER YEAR
-   ============================================ */
+   ============================================================ */
 document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ============================================================
+   🖱️ SUBTLE PARALLAX ON BLOBS (mouse-reactive depth)
+   ============================================================ */
+const blobs = document.querySelectorAll('.blob');
+document.addEventListener('mousemove', (e) => {
+  const x = (e.clientX / window.innerWidth - 0.5) * 2;  // -1 → 1
+  const y = (e.clientY / window.innerHeight - 0.5) * 2;
+  blobs.forEach((blob, i) => {
+    const depth = (i + 1) * 8; // each blob moves slightly differently
+    blob.style.marginLeft = `${x * depth}px`;
+    blob.style.marginTop  = `${y * depth}px`;
+  });
+});
 </script>
 
 </body>
