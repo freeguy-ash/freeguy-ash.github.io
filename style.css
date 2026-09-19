@@ -1,0 +1,198 @@
+:root {
+  --void: #04050b;
+  --panel: rgba(11, 12, 25, 0.76);
+  --ink: #ece9f6;
+  --muted: #a6a3bd;
+  --line: rgba(236, 233, 246, 0.12);
+  --ember: #ffa25e;
+  --ember-soft: #ffc79a;
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --top-gap: clamp(200px, 34vh, 340px);
+ 
+  color-scheme: dark;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); background: var(--void); }
+*, *::before, *::after { box-sizing: inherit; }
+ 
+body {
+  margin: 0;
+  background: var(--void);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+ 
+/* Backdrop and starfield */
+.bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 8%, rgba(96, 78, 190, 0.22), transparent 70%),
+    radial-gradient(ellipse 90% 60% at 50% 100%, rgba(255, 140, 90, 0.05), transparent 70%),
+    linear-gradient(180deg, #0a0a1c 0%, #05060f 55%, #030308 100%);
+}
+#sky {
+  position: fixed; inset: 0; z-index: 1;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  animation: skyIn 1.8s ease-out 0.1s forwards;
+}
+@keyframes skyIn { to { opacity: 1; } }
+ 
+/* Layout */
+.page {
+  position: relative; z-index: 2;
+  padding: 0 1rem;
+}
+.resume {
+  width: min(880px, 100%);
+  margin: var(--top-gap) auto 4rem;
+  padding: clamp(1.5rem, 4.5vw, 3.25rem);
+  background: var(--panel);
+  -webkit-backdrop-filter: blur(14px) saturate(125%);
+  backdrop-filter: blur(14px) saturate(125%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 22px;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 199, 154, 0.16);
+  opacity: 0;
+  transform: translateY(14px);
+  animation: panelIn 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.5s forwards;
+}
+@keyframes panelIn { to { opacity: 1; transform: none; } }
+ 
+/* Header */
+.head {
+  display: flex; flex-wrap: wrap; gap: 1.25rem 2rem;
+  justify-content: space-between; align-items: flex-start;
+  padding-bottom: 2.25rem;
+}
+.head-text { flex: 1 1 24rem; }
+h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-size: clamp(2.5rem, 7vw, 3.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.role-title {
+  margin: 0.6rem 0 0;
+  font-size: 1.1rem;
+  color: var(--ember-soft);
+}
+.summary {
+  margin: 1.25rem 0 0;
+  max-width: 58ch;
+  color: var(--ink);
+  opacity: 0.9;
+}
+.print-btn {
+  font: inherit; font-size: 0.9rem;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.5rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.print-btn:hover { background: rgba(255, 162, 94, 0.12); border-color: rgba(255, 162, 94, 0.5); }
+ 
+/* Sections */
+.block {
+  display: grid;
+  grid-template-columns: 10.5rem 1fr;
+  gap: 1rem 2.5rem;
+  padding: 2.25rem 0;
+  border-top: 1px solid var(--line);
+}
+h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.45rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.content { min-width: 0; }
+ 
+a { color: var(--ember-soft); text-underline-offset: 3px; text-decoration-color: rgba(255, 199, 154, 0.4); }
+a:hover { color: var(--ember); text-decoration-color: currentColor; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; border-radius: 4px; }
+.print-btn:focus-visible { border-radius: 999px; }
+ 
+/* Contact */
+.contact {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 2rem; margin: 0;
+}
+.contact dt { font-size: 0.85rem; color: var(--muted); }
+.contact dd { margin: 0.1rem 0 0; overflow-wrap: anywhere; }
+ 
+/* Skills */
+.skills { margin: 0; display: grid; gap: 1rem; }
+.skills > div { display: grid; grid-template-columns: 8rem 1fr; gap: 0.25rem 1.25rem; }
+.skills dt { color: var(--muted); font-size: 0.95rem; }
+.skills dd { margin: 0; }
+ 
+/* Experience: a real sequence, so a rail is used */
+.timeline { position: relative; margin: 0; padding: 0; list-style: none; border-left: 1px solid var(--line); }
+.job { position: relative; padding: 0 0 2.25rem 1.6rem; }
+.job:last-child { padding-bottom: 0; }
+.job::before {
+  content: ""; position: absolute; left: -5px; top: 0.55rem;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--ember);
+  box-shadow: 0 0 0 4px rgba(255, 162, 94, 0.15), 0 0 14px rgba(255, 162, 94, 0.55);
+}
+.job:not(:first-child)::before { background: #6f6c8d; box-shadow: none; }
+.job h3 { margin: 0; font-family: var(--serif); font-weight: 500; font-size: 1.2rem; line-height: 1.35; }
+.job-meta {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 1.5rem;
+  color: var(--muted); font-size: 0.95rem; margin-top: 0.1rem;
+}
+.job ul { margin: 0.85rem 0 0; padding-left: 1.15rem; max-width: 64ch; }
+.job li { margin-bottom: 0.45rem; }
+.job li::marker { color: #6f6c8d; }
+ 
+/* Education */
+.edu { margin: 0; padding: 0; list-style: none; display: grid; gap: 1.4rem; }
+.edu h3 { margin: 0; font-family: var(--serif); font-weight: 500; font-size: 1.15rem; line-height: 1.35; }
+.edu p { margin: 0.1rem 0 0; color: var(--muted); font-size: 0.95rem; }
+ 
+/* Responsive */
+@media (max-width: 720px) {
+  .block { grid-template-columns: 1fr; gap: 1.1rem; padding: 1.9rem 0; }
+  .contact { grid-template-columns: 1fr; }
+  .skills > div { grid-template-columns: 1fr; }
+  .job-meta { flex-direction: column; }
+}
+ 
+@media (prefers-reduced-motion: reduce) {
+  #sky, .resume { animation: none; opacity: 1; transform: none; }
+}
+ 
+/* Print / save as PDF */
+@media print {
+  :root { --ink: #111; --muted: #444; --line: #ccc; --ember: #8a3f00; --ember-soft: #8a3f00; padding: 0; }
+  .bg, #sky, .print-btn { display: none; }
+  html, body { background: #fff; }
+  .page { padding: 0; }
+  .resume {
+    margin: 0; width: 100%; padding: 0;
+    background: none; border: 0; box-shadow: none; border-radius: 0;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    animation: none; opacity: 1; transform: none;
+  }
+  .job::before { box-shadow: none; }
+  .block, .job { break-inside: avoid; }
+}
