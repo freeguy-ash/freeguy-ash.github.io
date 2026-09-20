@@ -6,8 +6,8 @@
   --line: rgba(236, 233, 246, 0.12);
   --ember: #ffa25e;
   --ember-soft: #ffc79a;
-  --serif: "Fraunces", Georgia, "Times New Roman", serif;
-  --sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --serif: "JetBrains Mono", monospace;
+  --sans: "JetBrains Mono", monospace;
   --top-gap: clamp(200px, 34vh, 340px);
  
   color-scheme: dark;
